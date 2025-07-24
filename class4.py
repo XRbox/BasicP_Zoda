@@ -64,13 +64,19 @@
 # print(type(my_dict["age"]))
 
 students = [
-    {"name" : "zoda" , "age" : 18 , "IT" : 31},
-    {"name" : "net" , "age" : 18 , "IT" : 31},
-    {"name" : "gap" , "age" : 20 , "IT" : 29}
-]
-for student in students:
-    if (student["age"] >= 19):
-        student["age"] = "old"
-    else:
-        student["age"] = "young"
-    print(student)
+        {'movie_name': 'Avengers Endgame', 'ticket_price': 300, 'genre': 'Action', 'age_restriction': '13'},
+        {'movie_name': 'Inception', 'ticket_price': 280, 'genre': 'Sci-Fi', 'age_restriction': '13'},
+        {'movie_name': 'It', 'ticket_price': 180, 'genre': 'Horror', 'age_restriction': '18'},
+        {'movie_name': 'The Notebook', 'ticket_price': 250, 'genre': 'Romantic', 'age_restriction': '13'},
+        {'movie_name': 'Harry Potter and the Sorcerer\'s Stone', 'ticket_price': 260, 'genre': 'Fantasy', 'age_restriction': 'G'}
+    ]
+
+print(students['movie_name'])
+# for student in students:
+#     if (student["age"] >= 19):
+#         student["age"] = "old"
+#     else:
+#         student["age"] = "young"
+#     print(student)
+
+
