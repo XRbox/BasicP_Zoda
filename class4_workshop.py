@@ -37,10 +37,16 @@ def buy_ticket(movie_list):
     age = int(input("โปรดใส่อายุของคุณ : "))
     check_age(age , movie_list[choice]['age_restriction'])
     print("-----------------------")
-    soundtrack = input("จะดูsoundtrackหรือพากย์ไทย : ")
+    print("1.SOUNDTRACK")
+    print("2.พากย์ไทย")
+    soundtrack = int(input("1 , 2 : "))
+    if soundtrack == 1:
+        sound = "soundtrack"
+    elif soundtrack == 2:
+        sound = "พากย์ไทย"
     price = (calculate_price(movie_list[choice]['ticket_price'] ,movie_list[choice]['genre']))
     print("-----------------------")
-    print(movie_list[choice]['movie_name'] , soundtrack , price)
+    print(movie_list[choice]['movie_name'] , sound , price)
 
 def main():
     movies = [
