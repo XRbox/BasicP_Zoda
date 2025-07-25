@@ -24,16 +24,16 @@ def loop(num):
 
     results = 0
     for i in range(num):
-        show_menu(menu_list)
+        show_list(menu_list)
         choice = int(input("เลือกเมนูที่ต้องการ : ")) - 1
         checkInList(choice , menu_list)
-        show_sweet(sweet)
+        show_list(sweet)
         choice_sweet = int(input("เลือกความหวานตัดขาของคุณเลย : ")) - 1
         checkInList(choice_sweet , sweet)
-        show_topping(topping)
+        show_list(topping)
         choice_topping = int(input("เลือกท็อปปิ้งที่คุณต้องการ : ")) - 1
         checkInList(choice_topping , topping)
-        show_size(size)
+        show_list(size)
         choice_size = int(input("เลือกขนาดที่คุณต้องการ : ")) - 1
         checkInList(choice_size , size)
         results += calculator(menu_list[choice]['price'] , sweet[choice_sweet]['price'] , topping[choice_topping]['price'] , size[choice_size]['price'])
@@ -46,25 +46,11 @@ def main():
     dot_line()
     print("ราคารวมคือ" , result)
 
-def show_menu(menus):
-    for i ,menu in enumerate(menus):
-        print(f"{i +  1}" , menu['name'] , menu['price'])
+def show_list(lists):
+    for i ,list in enumerate(lists):
+        print(f"{i +  1}" , list['name'] , list['price'])
     dot_line()
 
-def show_topping(toppings):
-    for i ,topping in enumerate(toppings):
-        print(f"{i +  1}" , topping['name'] , topping['price'])
-    dot_line()
-
-def show_sweet(sweets):
-    for i ,sweet in enumerate(sweets):
-        print(f"{i +  1}" , sweet['name'] , sweet['price'])
-    dot_line()
-
-def show_size(sizes):
-    for i ,size in enumerate(sizes):
-        print(f"{i +  1}" , size['name'] , size['price'])
-    dot_line()
 
 def calculator(price_menu , price_sweet , price_topping , price_size):
     if price_sweet == 'FREE':
