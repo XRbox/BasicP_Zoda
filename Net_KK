@@ -1,5 +1,253 @@
+# abstract data type (ADT) / OOP Structure
+
 class Movie:
-    def __init__(self, name, price, genre, age):
-        self._name = name
-        self._price = price
-        self._genere = genere
+    _next_id = 0
+
+    def __init__(self, movie_name, ticket_price, genre, age_restriction):
+        # Validation
+        if not Movie._validate_text(movie_name): self._error("Movie name invalid")
+        if not Movie._validate_positive(ticket_price): self._error("Price invalid")
+
+        self._movie_name = movie_name
+        self._ticket_price = ticket_price
+        self._genre = genre
+        self._age_restriction = age_restriction
+        self._id = Movie._next_id
+        Movie._next_id += 1
+
+        # สร้างผังที่นั่ง 5x5 (Rows: A-E, Cols: 1-5)
+        # เก็บค่าเริ่มต้นเป็นรหัสที่นั่ง เช่น "A1", "A2"
+        self._seats = []
+        rows = ['A', 'B', 'C', 'D', 'E']
+        for r in rows:
+            row_list = []
+            for c in range(1, 6):
+                row_list.append(f"{r}{c}")
+            self._seats.append(row_list)
+
+    def _error(self, msg):
+        # Helper สำหรับแจ้ง error แบบไม่ใช้ try raise (เพื่อให้โปรแกรมไม่ crash ตามโจทย์)
+        print(f"Error: {msg}")
+
+    # --- Static Validation Methods ---
+    @staticmethod
+    def _validate_text(field):
+        return isinstance(field, str) and field.strip() != ""
+
+    @staticmethod
+    def _validate_positive(number):
+        return isinstance(number, (int, float)) and number > 0
+
+    # --- Seat Methods (New) ---
+    def get_seat_map(self):
+        return self._seats
+
+    def is_seat_booked(self, row_idx, col_idx):
+        # ถ้าค่าในตะแกรงเป็น "XX" แปลว่าไม่ว่าง
+        current_val = self._seats[row_idx][col_idx]
+        return current_val == "XX"
+
+    def reserve_seat(self, row_idx, col_idx):
+        # เปลี่ยนค่าในตะแกรงเป็น "XX"
+        self._seats[row_idx][col_idx] = "XX"
+
+    # --- Business Logic Methods ---
+    def calculate_final_price(self):
+        if self._genre == 'Sci-Fi':
+            return self._ticket_price + 50
+        return self._ticket_price
+
+    def is_age_allowed(self, user_age):
+        if self._age_restriction == 'G':
+            return True
+        return user_age >= int(self._age_restriction)
+
+    # --- Getters ---
+    def get_movie_name(self):
+        return self._movie_name
+
+    def get_base_price(self):
+        return self._ticket_price
+
+    def get_genre(self):
+        return self._genre
+
+    def get_age_restriction(self):
+        return self._age_restriction
+
+
+# --------------------------------------------------------------------
+# Helper Functions (ไม่ใช้ try-except)
+# --------------------------------------------------------------------
+
+def get_valid_integer_input(prompt):
+    """รับค่าตัวเลขเท่านั้น ถ้าผิดให้ใส่ใหม่ (แทน try-except)"""
+    while True:
+        value = input(prompt)
+        if value.isdigit():
+            return int(value)
+        else:
+            print("! กรุณากรอกเฉพาะตัวเลขเท่านั้น")
+
+
+def map_row_to_index(row_char):
+    """แปลง A->0, B->1 ... E->4"""
+    rows = "ABCDE"
+    if len(row_char) == 1 and row_char in rows:
+        return rows.index(row_char)
+    return -1
+
+
+# --------------------------------------------------------------------
+# Main Process Functions
+# --------------------------------------------------------------------
+
+def show_seat_map(movie_obj):
+    print(f"\n--- ผังที่นั่ง: {movie_obj.get_movie_name()} ---")
+    print("      1   2   3   4   5")  # Header columns
+    print("    ---------------------")
+
+    seats = movie_obj.get_seat_map()
+    row_labels = ['A', 'B', 'C', 'D', 'E']
+
+    for i in range(5):
+        row_str = f"{row_labels[i]} | "
+        for j in range(5):
+            val = seats[i][j]
+            # จัด format การแสดงผล ถ้าเป็น XX คือจองแล้ว
+            if val == "XX":
+                display_txt = "[XX]"
+            else:
+                display_txt = f"[{val}]"
+            row_str += f" {display_txt}"
+        print(row_str)
+    print("    ---------------------")
+    print("   (XX = ไม่ว่าง / [A1] = ว่าง)")
+
+
+def process_seat_selection(movie_obj):
+    """ลูปการเลือกที่นั่ง ตรวจสอบว่าว่างหรือไม่ และทำการจอง"""
+    while True:
+        show_seat_map(movie_obj)
+        print("\nเลือกที่นั่ง (เช่น A1, B3): ")
+        seat_code = input("ระบุรหัสที่นั่ง: ").upper().strip()
+
+        # Validation 1: ความยาวต้อง 2 ตัวอักษร (เช่น A1)
+        if len(seat_code) != 2:
+            print("! รหัสที่นั่งผิดรูปแบบ (ต้องเป็น ตัวอักษร+ตัวเลข เช่น A1)")
+            continue
+
+        row_char = seat_code[0]  # A
+        col_char = seat_code[1]  # 1
+
+        # Validation 2: แถวต้องเป็น A-E
+        row_idx = map_row_to_index(row_char)
+        if row_idx == -1:
+            print("! แถวต้องเป็น A, B, C, D หรือ E")
+            continue
+
+        # Validation 3: เลขต้องเป็น 1-5
+        if not col_char.isdigit():
+            print("! หลักต้องเป็นตัวเลข")
+            continue
+
+        col_idx = int(col_char) - 1  # แปลง 1->0
+        if col_idx < 0 or col_idx > 4:
+            print("! เลขที่นั่งต้องอยู่ระหว่าง 1-5")
+            continue
+
+        # Validation 4: ตรวจสอบซ้ำอีกครั้งว่าที่นั่งยังว่าง (Logic Check)
+        if movie_obj.is_seat_booked(row_idx, col_idx):
+            print(f"! ที่นั่ง {seat_code} ถูกจองไปแล้ว กรุณาเลือกใหม่")
+        else:
+            # ผ่านทุกเงื่อนไข -> ทำการจอง
+            movie_obj.reserve_seat(row_idx, col_idx)
+            return seat_code  # ส่งคืนรหัสที่จองสำเร็จ
+
+
+def print_ticket(movie_obj, seat_code, sound_system, final_price):
+    print("\n" + "=" * 30)
+    print("      E-TICKET / ตั๋วชมภาพยนตร์")
+    print("=" * 30)
+    print(f"เรื่อง    : {movie_obj.get_movie_name()}")
+    print(f"ประเภท    : {movie_obj.get_genre()}")
+    print(f"ที่นั่ง     : {seat_code}")
+    print(f"ระบบเสียง : {sound_system}")
+    print("-" * 30)
+    print(f"ราคา     : {final_price} บาท")
+    print("=" * 30 + "\n")
+
+
+def buy_ticket_process(movie_list):
+    # 1. แสดงรายชื่อหนัง
+    print("\n--- เลือกภาพยนตร์ ---")
+    for i in range(len(movie_list)):
+        m = movie_list[i]
+        print(f"{i + 1}. {m.get_movie_name()} ({m.get_genre()})")
+
+    # 2. ผู้ใช้เลือกหนัง
+    choice = get_valid_integer_input("เลือกหมายเลข (1-5): ") - 1
+
+    if choice < 0 or choice >= len(movie_list):
+        print("! ไม่มีหมายเลขหนังที่เลือก")
+        return
+
+    selected_movie = movie_list[choice]
+
+    # 3. ตรวจสอบอายุ
+    user_age = get_valid_integer_input("กรุณาระบุอายุของคุณ: ")
+    if not selected_movie.is_age_allowed(user_age):
+        print("\n-----------------------")
+        print("x ขออภัย อายุของคุณไม่ถึงเกณฑ์สำหรับเรื่องนี้")
+        print("-----------------------")
+        return
+
+    # 4. เลือกระบบเสียง
+    print("\n--- เลือกระบบเสียง ---")
+    print("1. Soundtrack")
+    print("2. พากย์ไทย")
+    sound_choice = get_valid_integer_input("เลือก (1 หรือ 2): ")
+    if sound_choice == 1:
+        sound = "Soundtrack"
+    elif sound_choice == 2:
+        sound = "พากย์ไทย"
+    else:
+        sound = "Standard"  # Default กรณีพิมพ์ผิดเลขอื่นที่ไม่ใช่ 1-2 (หรือจะบังคับ loop ก็ได้)
+
+    # 5. กระบวนการเลือกที่นั่ง (โหลดผัง -> แสดง -> เลือก -> ตรวจสอบ -> จอง)
+    booked_seat_code = process_seat_selection(selected_movie)
+
+    # 6. สรุปยอดและพิมพ์ตั๋ว
+    final_price = selected_movie.calculate_final_price()
+    print_ticket(selected_movie, booked_seat_code, sound, final_price)
+
+
+def main():
+    # Setup Data
+    movies = [
+        Movie('Avengers Endgame', 300, 'Action', '13'),
+        Movie('Inception', 280, 'Sci-Fi', '13'),
+        Movie('It', 180, 'Horror', '18'),
+        Movie('The Notebook', 250, 'Romantic', '13'),
+        Movie('Harry Potter', 260, 'Fantasy', 'G')
+    ]
+
+    while True:
+        print("=== เมนูหลัก ===")
+        print("1. จองตั๋วหนัง")
+        print("0. ออกจากโปรแกรม")
+
+        menu = get_valid_integer_input("เลือกเมนู: ")
+
+        if menu == 1:
+            buy_ticket_process(movies)
+        elif menu == 0:
+            print("ขอบคุณที่ใช้บริการ")
+            break
+        else:
+            print("! เมนูไม่ถูกต้อง")
+
+
+# เริ่มโปรแกรม
+if __name__ == "__main__":
+    main()
