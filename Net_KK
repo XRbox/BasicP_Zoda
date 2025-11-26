@@ -1,0 +1,5 @@
+class Movie:
+    def __init__(self, name, price, genre, age):
+        self._name = name
+        self._price = price
+        self._genere = genere
